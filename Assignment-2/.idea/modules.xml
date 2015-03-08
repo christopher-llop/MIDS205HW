@@ -3,6 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Assignment-2.iml" filepath="$PROJECT_DIR$/.idea/Assignment-2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../DataMunging/.idea/DataMunging.iml" filepath="$PROJECT_DIR$/../../DataMunging/.idea/DataMunging.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../ClassExamples/Week3codes/.idea/Week3codes.iml" filepath="$PROJECT_DIR$/../../ClassExamples/Week3codes/.idea/Week3codes.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../ClassExamples/Week5codes_2/.idea/Week5codes_2.iml" filepath="$PROJECT_DIR$/../../ClassExamples/Week5codes_2/.idea/Week5codes_2.iml" />
       <module fileurl="file://$PROJECT_DIR$/../../mrjobstarter/cc-mrjob/.idea/cc-mrjob.iml" filepath="$PROJECT_DIR$/../../mrjobstarter/cc-mrjob/.idea/cc-mrjob.iml" />
     </modules>
   </component>

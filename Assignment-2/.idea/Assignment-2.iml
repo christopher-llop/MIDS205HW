@@ -5,5 +5,8 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="cc-mrjob" />
+    <orderEntry type="module" module-name="DataMunging" />
+    <orderEntry type="module" module-name="Week3codes" />
+    <orderEntry type="module" module-name="Week5codes_2" />
   </component>
 </module>
