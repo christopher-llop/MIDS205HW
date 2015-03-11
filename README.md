@@ -9,3 +9,4 @@ com.christopherllop.w205assignment2 is the S3 bucket where the boto package stor
 scrape.py scrapes the data
 histo.py creates a histogram
 histogram.txt is the output histogram
+See the ReadMe in Assignment-2 for more details on implementation
