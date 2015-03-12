@@ -1,3 +1,5 @@
+__author__ = 'cjllop'
+
 import boto
 import json
 import pymongo

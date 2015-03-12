@@ -1,3 +1,5 @@
+__author__ = 'cjllop'
+
 import sys
 import tweepy
 import urllib
@@ -8,6 +10,12 @@ import pymongo
 
 #Note - This code was used to pull data for Assignment 2. It was thus not re-run as part of Assignment 3
 #This program accomplishes requirement 1.1 for Assignment 3
+
+#Note - Halfway through Assignment 3 I switched to putting common modules
+#into a library called "lloplib", that all future assignments will have access to.
+# I will use this library going forward to make my coding more effective. This
+# class is my first time using Python, so I'm
+#ramping up as we go! Codes 1.1 and 1.2 have not been refactored since this change.
 
 
 # Class to handle exceptions

@@ -1,47 +1,5 @@
-import boto
-import json
 import pymongo
 import sys
-import pprint
-
-# Class to handle exceptions
-class MyException(Exception):
-    pass
-
-#get all tweet text from s3, and store in mongoDB
-def load_tweets_from_S3(db_store):
-    print("Loading data from S3...")
-    try:
-        s3 = boto.connect_s3()
-        files = []
-        for i in range(1,8):
-            files.append("Tweet Day 2015-03-0" + str(i) + ".txt")
-    except Exception:
-        raise MyException("Trouble connecting to boto")
-
-    try:
-        for file in files:
-            try:
-                print("Loading file " + file + " from S3.")
-                key = s3.get_bucket('com.christopherllop.w205assignment2').get_key(file)
-                full_doc = key.get_contents_as_string()
-                print("Storing tweets in MongoDB.")
-                for tweet in full_doc.split('\n'):
-                    #store in db_tweets
-                    if tweet != '':
-                        tweet_json = json.loads(tweet)
-                        text_json = {u'text':tweet_json[u'text']}
-                        db_store.insert(text_json)
-                print("File " + file + " loaded.")
-            except Exception:
-                pass
-
-    except Exception:
-        pass
-        raise MyException("Exception while pulling data from S3 and saving to Mongo")
-    except KeyboardInterrupt:
-        raise MyException("KeyboardInterrupt detected")
-
 
 if __name__ == '__main__':
     # Set up MongoDB connection
@@ -50,28 +8,70 @@ if __name__ == '__main__':
         db = connection['Assignment']
         db_streamT = db['db_streamT']
         db_tweets = db['db_tweets']
+        db_top30 = db['top_30_retweets'] #used to store data on the original poster of top 30 tweets
     except:
         print "Exception while connecting to MongoDB"
         sys.exit(0)
 
+    #empty db_top30 since we want it to be created in this code
+    if db_top30.count() != 0:
+        db_top30.drop()
 
-    for test in db_streamT.find():
-        pprint.pprint(test)
-
-    #line below used for debugging
-    #empty_db(db_tweets)
-
-    #modify database to remove "RT @"
-    # aggregate example
-    test = db_tweets.aggregate( [
+    #Note: the assignment specifically asks for retweets, meaning the data selected
+    #must start with the "RT" tag (as opposed to one user tweeting the same
+    #advertisement over and over, never being retweeted).
+    #I will have the aggregate function store the top 100 results in memory, because
+    #after examining the data I believe this is more than sufficient as a starting
+    #point to then filter down to retweets only. I am trying to avoid storing all
+    #of the retweets in memory by filtering to only RT posts first.
+    top_30_RT_raw = db_tweets.aggregate( [
        {
          "$group": {
             "_id": "$text",
             "total": { "$sum": 1 }
          }
        },
-       { "$sort": { "total": -1 } }
+       { "$sort": { "total": -1 } },
+       { "$limit": 100}
     ] )
 
-    for line in test[u'result']:
-        print line[u'_id'] + "  " + str(line[u'total'])
+    #limit to the top 30 retweets. Let the random ordering break ties, since the
+    #assignment requires 30 tweets and any tie-breaking algorithm would be equally
+    #arbitrary.
+    i = 1
+    top_30_RT_list = []
+    for tweet in top_30_RT_raw[u'result']:
+        try:
+            if tweet[u'_id'].startswith("RT @") and len(top_30_RT_list) < 30:
+                top_30_RT_list.append(tweet)
+                print "Tweet " + str(i) + " is a retweet. Add tweet: " + tweet[u'_id']
+            elif len(top_30_RT_list) < 30:
+                print "Tweet " + str(i) + " is NOT a retweet. Skip tweet: " + tweet[u'_id']
+            i += 1
+        except:
+            pass
+
+
+    #Get the data of interest from the db_streamT (this is exciting)
+    #Note - Arash clarified that we want the data for the ORIGINAL tweeter, so we need to dig into the
+    #"retweeted_status" key.
+    for tweet in top_30_RT_list:
+        try:
+            #print str(i) + ": " + str(tweet)
+            tweet_text = tweet[u'_id']
+            full_tweet = db_streamT.find_one({'text':tweet_text})
+            tweet_username = ((full_tweet[u'retweeted_status'])[u'user'])[u'screen_name']
+            tweet_location = ((full_tweet[u'retweeted_status'])[u'user'])[u'location']
+            #followers_count not requested in the assignment, but I am interested in printing this to screen in code
+            #2.3 while processing the number of followers to provide a slightly better user experience.
+            tweet_followers_count = ((full_tweet[u'retweeted_status'])[u'user'])[u'followers_count']
+
+            db_top30.insert({u'text':tweet_text, u'screen_name':tweet_username, u'location':tweet_location,
+                             u'observed_retweet':tweet[u'total'], u'followers_count':tweet_followers_count})
+        except:
+            print "Error while searching for original tweeter data. This is a required part of the assignment. Program terminating."
+            sys.exit(0)
+
+    print "DISPLAY RESULTS"
+    for top_retweet in db_top30.find():
+        print top_retweet
