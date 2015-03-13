@@ -5,6 +5,7 @@ import sys
 import tweepy
 import time
 from lloplib import setuptweepy
+from scratchpad import fake_data
 
 def pull_followers(api, db_top30, db_followers, pull_num):
     for top_tweet in db_top30.find():
@@ -59,28 +60,21 @@ if __name__ == '__main__':
     print "Run first pull of follower data."
     pull_followers(api, db_top30, db_followers, 1)
     print "Wait one week."
-    # time.sleep(604800)
+    time.sleep(604800)
     print "Run second pull of follower data."
-    # pull_followers(api, db_top30, db_followers, 2)
+    pull_followers(api, db_top30, db_followers, 2)
 
-    # run aggregate analysis
+    # run aggregate analysis, keep only followers that were only were following the user the first time
     follower_analysis_1 = db_followers.aggregate( [
-       {"$group": {"_id": {"screen_name":"$screen_name","follower_name":"$follower_name"},
-            "total": { "$sum": 1 },
+        {"$group": {"_id": {"screen_name":"$screen_name","follower_name":"$follower_name"},
             "last": { "$max":"$pull_num"}}},
-       {"$sort": { "total": 1 } }
+        {"$match": {"last": 1}}
     ] )
 
     # print results from aggregate analysis
     print
     print "These users are no longer following:"
     for check in follower_analysis_1[u'result']:
-        try:
-            # If the condition below is met, the screen_name/follower_name pair only appeared once, the first time
-                # we pulled followers. This means they are in the desired set of output
-            if check[u'total'] == 1 and check[u'last'] == 1:
-                name_data = check[u'_id']
-                db_unfollowers.insert({u'screen_name':name_data[u'screen_name'],u'follower_name':name_data[u'follower_name']})
-                print name_data[u'follower_name'] + " is no longer following " + name_data[u'screen_name'] + "."
-        except Exception:
-            pass
+        name_data = check[u'_id']
+        db_unfollowers.insert({u'screen_name':name_data[u'screen_name'],u'follower_name':name_data[u'follower_name']})
+        print name_data[u'follower_name'] + " is no longer following " + name_data[u'screen_name'] + "."
