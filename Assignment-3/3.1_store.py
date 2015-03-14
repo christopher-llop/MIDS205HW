@@ -35,7 +35,11 @@ def save_to_S3(db, db_name):
     except:
         raise Exception("Unable to save to S3")
 
-
+import boto
+import pymongo
+import sys
+import os
+import json
 if __name__ == '__main__':
     # Set up MongoDB connection
     try:
@@ -47,11 +51,7 @@ if __name__ == '__main__':
         print "Exception while connecting to MongoDB"
         sys.exit(0)
 
-
-    test = json.load
-
     #save to S3
     #save_to_S3(db_streamT, "db_streamT")
     #save_to_S3(db_tweets, "db_tweets")
 
-    load_from_S3(db_tweets, "db_tweets")
