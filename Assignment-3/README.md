@@ -59,4 +59,8 @@ to MongoDB, and using the "aggregate" function (and its pipeline) to identify us
 at time 1 but not at time 2
 
 3.1_S3_store.py
-Stores db_streamT and db_tweets to S3
+Stores db_streamT and db_tweets to S3 in bucket com.christopherllop.w205assignment3
+Note: I spent many hours trying to get the mongodump / mongorestore functions to
+work, but was unable to figure out how to do so. I would greatly appreciate some 
+feedback regarding how to implement this given my setup. The task seems to require
+functions outside of the scope of the class - but I would still like to learn them.

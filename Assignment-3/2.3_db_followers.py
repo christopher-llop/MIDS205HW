@@ -7,8 +7,8 @@ import time
 from lloplib import setuptweepy
 from scratchpad import fake_data
 
-def pull_followers(api, db_top30, db_followers, pull_num):
-    for top_tweet in db_top30.find():
+def pull_followers(api, db_top30, db_followers, pull_num, limit):
+    for top_tweet in db_top30.find().limit(limit):
         try:
             top_name = top_tweet[u'screen_name']
             starting_follower_count = top_tweet[u'followers_count']
@@ -58,11 +58,11 @@ if __name__ == '__main__':
     # We can then use the aggregate function to identify followers who are only in the dataset at pull_num = 1
     # and not pull_num = 2
     print "Run first pull of follower data."
-    pull_followers(api, db_top30, db_followers, 1)
+    pull_followers(api, db_top30, db_followers, 1, 10)
     print "Wait one week."
     time.sleep(604800)
     print "Run second pull of follower data."
-    pull_followers(api, db_top30, db_followers, 2)
+    pull_followers(api, db_top30, db_followers, 2, 10)
 
     # run aggregate analysis, keep only followers that were only were following the user the first time
     follower_analysis_1 = db_followers.aggregate( [
